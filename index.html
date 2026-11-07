@@ -219,6 +219,53 @@ const QUIZ = [
    ['Not sure yet',['enterprise','creative']]]}
 ];
 
+/* A level reverse pathways: from one subject, the degrees and jobs it opens. Source: Kingsthorpe College subject links (A level and vocational) and UCAS course requirement guidance. */
+const slug = s => s.toLowerCase().replace(/&/g,'and').replace(/\s+/g,'-');
+const ALEVELS = [
+ {name:'Biology',degrees:['Medicine','Dentistry','Nursing','Veterinary science','Pharmacy','Zoology','Biochemistry'],careers:['Doctor','Dentist','Nurse','Vet','Pharmacist','Physiotherapist','Pharmaceutical researcher'],pairs:['Chemistry','Maths','Physics','Psychology','Health and Social Care']},
+ {name:'Chemistry',degrees:['Medicine','Dentistry','Pharmacy','Chemical engineering','Forensic science','Veterinary science'],careers:['Pharmaceutical researcher','Forensic scientist','Nurse','Physiotherapist','Vet'],pairs:['Biology','Maths','Physics','Psychology']},
+ {name:'Maths',degrees:['Economics','Accountancy','Engineering','Computer science','Physics','Actuarial science'],careers:['Accountant','Banker','Financial analyst','Engineer','Software developer','Actuary'],pairs:['Physics','Chemistry','Business Studies','Computer Science','Economics']},
+ {name:'Physics',degrees:['Engineering','Astrophysics','Photonics','Computer science','Medicine (with Chemistry and Biology)'],careers:['Engineer','Physical scientist','Engineering technician','Software developer'],pairs:['Maths','Chemistry','Biology','Computer Science']},
+ {name:'Computer Science',degrees:['Computer science','Computer games programming','IT'],careers:['Programmer','IT engineer','IT technician','Software developer'],pairs:['Maths','Physics','Business Studies','Media']},
+ {name:'Business Studies',degrees:['Economics','Finance','Accountancy','Management','Enterprise'],careers:['Management consultant','Sales','Marketing','Project manager','Accountant'],pairs:['English Language','Media','Physics','Psychology','Sociology','Computer Science']},
+ {name:'Economics',degrees:['Economics','Finance','Politics'],careers:['Economist','Banker','Civil servant','Financial analyst'],pairs:['Maths','Business Studies','History']},
+ {name:'English Language',degrees:['English','Linguistics','Creative writing','History','Politics','Journalism'],careers:['Journalist','Publisher','Advertising','PR','Lawyer','Teacher'],pairs:['English Literature','History','Media','Business Studies']},
+ {name:'English Literature',degrees:['English','Creative writing','History','Politics','Media'],careers:['Teacher','Publisher','Social worker','Lawyer','Media professional'],pairs:['English Language','History','Media','Sociology']},
+ {name:'History',degrees:['International studies','Economics','Media and communication','Journalism','Art history'],careers:['Barrister','Solicitor','Journalist','Librarian','Government administrator'],pairs:['English Language','English Literature','Geography','Sociology','Criminology']},
+ {name:'Geography',degrees:['Environmental management','Social policy','Civil engineering','Geology','Conservation'],careers:['Civil engineer','Chartered surveyor','Teacher','Conservationist'],pairs:['Business Studies','History','Maths','Sociology']},
+ {name:'Psychology',degrees:['Psychology','Social science','Criminology','Health studies'],careers:['Psychologist','Counsellor','Occupational therapist','Careers adviser'],pairs:['Biology','Business Studies','Sociology','Criminology','Sport']},
+ {name:'Sociology',degrees:['Applied social studies','Psychology','Politics','Social policy'],careers:['Youth worker','Police officer','Probation officer','Housing officer','Journalist'],pairs:['Law','Politics','Psychology','English Literature','History']},
+ {name:'Media',degrees:['Media','Film studies','Sociology','PR'],careers:['Advertising','PR','Journalist','Broadcaster','Photographer'],pairs:['English Literature','English Language','Psychology','Sociology','Music']},
+ {name:'Art and Photography',degrees:['Photography','Fine art','Graphic design'],careers:['Artist','Designer','Illustrator','Fashion designer','Teacher'],pairs:['English Language','English Literature','Media','Computer Science']},
+ {name:'Health and Social Care',degrees:['Nursing (with access course)','Midwifery','Social work','Paramedicine'],careers:['Nurse','Midwife','Social worker','Paramedic','Care manager'],pairs:['Biology','Psychology','Sociology']},
+ {name:'Criminology',degrees:['Criminology','Criminology with law','LLB Law with Criminology'],careers:['Probation officer','Criminal justice roles','Police officer'],pairs:['Law','Psychology','Sociology','History']}
+];
+
+/* Course combinations: three to four A levels that work well together, and what they lead to. */
+const COMBOS = [
+ {subjects:['Biology','Chemistry','Maths'],leads:'Medicine, dentistry, pharmacy, veterinary science, engineering',note:'Chemistry is compulsory for medicine, dentistry, pharmacy and vet courses.'},
+ {subjects:['Maths','Physics','Computer Science'],leads:'Engineering, software development, computer science',note:'The strongest combination for engineering and computing.'},
+ {subjects:['Maths','Business Studies','Economics'],leads:'Accountancy, finance, banking, economics',note:'Good for accountancy and finance apprenticeships as well as degrees.'},
+ {subjects:['English Literature','History','Sociology'],leads:'Law, journalism, policy and public service',note:'Essay-based. Suits solicitor and barrister routes.'},
+ {subjects:['Psychology','Biology','Sociology'],leads:'Nursing, psychology, social work, occupational therapy',note:'A strong health and care combination.'},
+ {subjects:['Art and Photography','Media','English Language'],leads:'Design, advertising, PR, journalism',note:'Portfolio-led. Add Computer Science for digital design.'},
+ {subjects:['Geography','Maths','Physics'],leads:'Civil engineering, surveying, environmental roles',note:'Maths and Physics for engineering; Geography for land and planning.'},
+ {subjects:['Criminology','Law','Psychology'],leads:'Probation, policing, criminal justice, law',note:'Vocational Criminology sits well alongside Law and Psychology.'},
+ {subjects:['Health and Social Care','Biology','Psychology'],leads:'Nursing, midwifery, paramedicine, care',note:'Vocational Health and Social Care works with Biology.'}
+];
+
+/* T Level routes: occupational specialisms and the jobs they lead to. Source: gov.uk T Levels occupational specialisms list. */
+const TLEVELS = [
+ {route:'Digital',specialisms:['Software development','Digital support and security','Data analytics'],jobs:['Software developer','Cyber security','Data analyst','IT support']},
+ {route:'Engineering and manufacturing',specialisms:['Mechanical engineering','Electrical and electronic engineering','Structural engineering','Maintenance engineering'],jobs:['Engineer','Engineering technician','Maintenance engineer']},
+ {route:'Building services and construction',specialisms:['Electrotechnical engineering','Plumbing and heating engineering','Gas engineering','Civil engineering','Project delivery for construction'],jobs:['Electrician','Plumber','Gas engineer','Civil engineer','Site manager']},
+ {route:'Health',specialisms:['Adult nursing team','Midwifery team','Mental health team','Therapy teams'],jobs:['Nursing associate','Midwife support','Therapy assistant']},
+ {route:'Finance and accounting',specialisms:['Assistant accountant','Retail and commercial banking analyst','Investment banking analyst','Financial compliance and risk analyst'],jobs:['Accounts assistant','Bank analyst','Insurance practitioner']},
+ {route:'Science',specialisms:['Laboratory sciences','Food sciences','Metrology sciences'],jobs:['Laboratory technician','Food scientist','Metrology technician']},
+ {route:'Creative and media',specialisms:['Content creation and production','Creative media technician','Events and venues technician'],jobs:['Content producer','Media technician','Events technician']},
+ {route:'Land-based',specialisms:['Land-based engineering'],jobs:['Land-based engineer','Farm and estate technician']}
+];
+
 const KEY = 'careerPath';
 const getPath = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch(e) { return []; } };
 const setPath = (p) => { try { localStorage.setItem(KEY, JSON.stringify(p)); } catch(e) {} };
@@ -227,7 +274,7 @@ const career = id => CAREERS.find(c => c.id === id);
 const payBar = n => `<div class="pay"><i><b style="width:${n*10}%"></b></i><span>Pay ${n}/10</span></div>`;
 
 function nav(route){
-  const items = [['home','Home'],['subjects','Subjects'],['groups','Careers'],['quiz','Quiz'],['path','My Path']];
+  const items = [['home','Home'],['subjects','Subjects'],['combos','Combos'],['tlevels','T Levels'],['groups','Careers'],['quiz','Quiz'],['path','My Path']];
   document.getElementById('nav').innerHTML = items.map(([k,l]) =>
     `<a href="#${k}" ${route===k?'aria-current="page"':''}>${l}</a>`).join('');
 }
@@ -241,6 +288,8 @@ function views(){
         <a class="card" href="#subjects"><b>Start from subjects</b><small>Pick GCSEs and see where they lead</small></a>
         <a class="card" href="#groups"><b>Start from careers</b><small>Browse ${GROUPS.length} career groups</small></a>
         <a class="card" href="#quiz"><b>What do you enjoy?</b><small>Three quick questions</small></a>
+        <a class="card" href="#combos"><b>Course combinations</b><small>Which A levels go together, and where they lead</small></a>
+        <a class="card" href="#tlevels"><b>T Levels</b><small>Technical routes after GCSEs</small></a>
       </div>
       <h2>Career groups</h2>
       <div class="grid">${GROUPS.map(g=>`<a class="card" href="#group-${g.id}"><b>${g.name}</b><small>${g.blurb}</small></a>`).join('')}</div>`; },
@@ -274,6 +323,25 @@ function views(){
       <div id="results"></div>`; },
 
     quiz(){ return `<h1>What do you enjoy?</h1><p class="lede">Three questions, then your best-fit groups.</p><div id="quiz"></div>`; },
+
+    combos(){ return `<h1>Course combinations</h1>
+      <p class="lede">A level groups that work well together, and the degrees and jobs they open. Tap a subject to see its routes in reverse.</p>
+      ${COMBOS.map(c=>`<div class="box"><div>${c.subjects.map(s=>ALEVELS.find(a=>a.name===s)?`<a class="chip" href="#alevel-${slug(s)}">${s}</a>`:`<span class="chip">${s}</span>`).join('')}</div>
+        <p style="margin:.5rem 0 .2rem"><b>Leads to:</b> ${c.leads}</p><p class="muted" style="margin:0">${c.note}</p></div>`).join('')}`; },
+
+    alevel(id){ const s = ALEVELS.find(a=>slug(a.name)===id);
+      if(!s) return views().combos();
+      return `<p><a href="#combos">← Course combinations</a></p>
+      <h1>${s.name}</h1><p class="lede">Work backwards from the jobs to see what this subject opens.</p>
+      <h2>Degrees</h2><p>${s.degrees.map(d=>`<span class="chip">${d}</span>`).join('')}</p>
+      <h2>Jobs</h2><p>${s.careers.map(d=>`<span class="chip">${d}</span>`).join('')}</p>
+      <h2>Often taken with</h2><p>${s.pairs.map(p=>ALEVELS.find(a=>a.name===p)?`<a class="chip" href="#alevel-${slug(p)}">${p}</a>`:`<span class="chip">${p}</span>`).join('')}</p>`; },
+
+    tlevels(){ return `<h1>T Levels</h1>
+      <p class="lede">Two-year technical courses after GCSEs, with a work placement. Each route leads to jobs like these.</p>
+      ${TLEVELS.map(t=>`<div class="box"><b>${t.route}</b>
+        <p class="muted" style="margin:.4rem 0">${t.specialisms.join(' · ')}</p>
+        <p style="margin:0">${t.jobs.map(j=>`<span class="chip">${j}</span>`).join('')}</p></div>`).join('')}`; },
 
     path(){ const p = getPath();
       return `<h1>My Path</h1><p class="lede">Careers you have saved, and the subjects they share.</p>
@@ -318,6 +386,7 @@ function render(){
   let html;
   if(key==='group') html = V.group(arg);
   else if(key==='career') html = V.career(arg);
+  else if(key==='alevel') html = V.alevel(arg);
   else html = (V[key]||V.home)();
   nav(key==='group'||key==='career' ? 'groups' : key);
   document.getElementById('app').innerHTML = html;
