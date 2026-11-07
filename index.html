@@ -1,0 +1,282 @@
+<title>Career Pathways</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: a single calm column. Routes read as a vertical timeline. */
+:root{
+  --bg:#F5F2EA; --card:#FBFAF6; --fg:#1F2A24; --muted:#5F675E; --line:#D9D3C4; --accent:#A4502A; --soft:#E9E3D3;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#151A17; --card:#1C231F; --fg:#E9E6DC; --muted:#9AA195; --line:#2F3832; --accent:#E08A5C; --soft:#242D27; color-scheme:dark; } }
+:root[data-theme="dark"]{ --bg:#151A17; --card:#1C231F; --fg:#E9E6DC; --muted:#9AA195; --line:#2F3832; --accent:#E08A5C; --soft:#242D27; color-scheme:dark; }
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 "Source Sans 3",system-ui,sans-serif;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));}
+*{box-sizing:border-box}
+h1,h2,h3{font-family:"Newsreader",Georgia,serif;font-weight:500;line-height:1.2;text-wrap:balance;margin:0}
+h1{font-size:2rem} h2{font-size:1.5rem;margin:1.2rem 0 .5rem} h3{font-size:1.15rem}
+a{color:var(--accent)}
+.wrap{max-width:680px;margin:0 auto;padding-block:12px 40px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);border-bottom:1px solid var(--line);z-index:5}
+header.top .bar{max-width:680px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;padding-block:10px;flex-wrap:wrap}
+.brand{font-family:"Newsreader",Georgia,serif;font-size:1.2rem;text-decoration:none;color:var(--fg)}
+nav a{color:var(--muted);text-decoration:none;font-size:.9rem;margin-left:12px}
+nav a[aria-current="page"]{color:var(--accent);font-weight:600}
+.lede{color:var(--muted);margin:.2rem 0 1rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.card{display:block;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px;text-decoration:none;color:var(--fg)}
+.card small{color:var(--muted);display:block;margin-top:2px}
+.btn{font:inherit;background:var(--accent);color:#fff;border:0;border-radius:6px;padding:10px 16px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pay{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:.85rem;color:var(--muted)}
+.pay i{flex:1;height:6px;background:var(--soft);border-radius:3px;overflow:hidden;display:block}
+.pay b{display:block;height:100%;background:var(--accent)}
+.tag{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.route{list-style:none;padding:0;margin:1rem 0;position:relative}
+.route li{position:relative;padding:0 0 22px 28px;border-left:2px solid var(--line);margin-left:8px}
+.route li::before{content:"";position:absolute;left:-7px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--card);border:2px solid var(--accent)}
+.route li.job::before{background:var(--accent)}
+.route li:last-child{border-left-color:transparent}
+.route p{margin:.2rem 0}
+.box{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px;margin:12px 0}
+.checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px 14px;margin:8px 0 16px}
+.checks label{display:flex;gap:8px;align-items:center;cursor:pointer}
+.opts{display:grid;gap:8px;margin:10px 0}
+.opts button{font:inherit;text-align:left;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:12px;cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:2px 10px;margin:2px 4px 2px 0;font-size:.85rem;color:var(--muted)}
+.muted{color:var(--muted)}
+ul.plain{padding-left:1.1rem;margin:.3rem 0}
+</style>
+
+<header class="top"><div class="bar">
+  <a class="brand" href="#home">Career Pathways</a>
+  <nav id="nav"></nav>
+</div></header>
+<main class="wrap" id="app"></main>
+
+<script>
+const GROUPS = [
+ {id:'professional',name:'Professional',blurb:'Degree-led, chartered roles'},
+ {id:'legal',name:'Legal',blurb:'Law, courts and regulation'},
+ {id:'specialist',name:'Specialist & Science',blurb:'Research and scientific expertise'},
+ {id:'technical',name:'Technical & Digital',blurb:'Computing, engineering and building'},
+ {id:'trades',name:'Trades & Practical',blurb:'Skilled, hands-on work'},
+ {id:'health',name:'Health & Care',blurb:'Looking after people'},
+ {id:'finance',name:'Finance & Commerce',blurb:'Money, accounts and business'},
+ {id:'admin',name:'Administrative & Business',blurb:'Keeping organisations running'},
+ {id:'creative',name:'Creative & Media',blurb:'Design, writing and production'},
+ {id:'education',name:'Education',blurb:'Teaching and learning'},
+ {id:'public',name:'Public Service',blurb:'Policing, government and forces'},
+ {id:'enterprise',name:'Self-employed & Enterprise',blurb:'Building your own business'}
+];
+
+const CAREERS = [
+ {id:'doctor',name:'Doctor',group:'professional',pay:9,req:['Maths','Combined Science'],help:['English Language'],
+  gcse:'Strong grades in Maths, English and Combined Science are needed.',
+  alevel:['Biology','Chemistry','Maths or Physics'],
+  next:[['Medicine degree (five to six years)','Essential'],['Graduate-entry medicine (four years, any degree)','Alternative']],
+  ib:'IB Higher Level Biology and Chemistry, with Maths or Physics.'},
+ {id:'solicitor',name:'Solicitor',group:'legal',pay:7,req:['English Language','Maths'],help:['History','English Literature'],
+  gcse:'Strong English and Maths; essay-based subjects help.',
+  alevel:['Any essay subject, such as English, History or Politics'],
+  next:[['Law degree, or any degree plus a conversion course','Essential'],['Solicitor apprenticeship (paid, about six years)','Alternative']],
+  ib:'IB English A and History, or Global Politics.'},
+ {id:'research-scientist',name:'Research scientist',group:'specialist',pay:6,req:['Maths','Combined Science'],help:['Chemistry','Physics'],
+  gcse:'Maths and Sciences at a high level.',
+  alevel:['Chemistry','Biology','Maths'],
+  next:[['Science degree','Essential'],['PhD after the degree','Helpful']],
+  ib:'IB Higher Level Chemistry or Biology, with Maths.'},
+ {id:'software-developer',name:'Software developer',group:'technical',pay:7,req:['Maths','Computer Science'],help:['English Language'],
+  gcse:'Maths and Computer Science are the strongest starts.',
+  alevel:['Maths','Computer Science'],
+  next:[['Computer science degree','Essential'],['Software developer apprenticeship','Alternative'],['T Level in Digital','Alternative']],
+  ib:'IB Higher Level Maths and Computer Science.'},
+ {id:'electrician',name:'Electrician',group:'trades',pay:5,req:['Maths','Combined Science'],help:['Design & Technology'],
+  gcse:'Maths helps with circuits and measurements.',
+  alevel:['A levels not required. T Level in Building Services Engineering is one route.'],
+  next:[['Electrical apprenticeship (about four years)','Essential'],['Later: run your own contracting business','Alternative']],
+  enterprise:true, ib:'Not usually an IB route. Look at vocational routes.'},
+ {id:'property-developer',name:'Property developer',group:'enterprise',pay:6,req:['Maths'],help:['Business','Economics'],
+  gcse:'Maths and a sense for numbers. Business or Economics helps.',
+  alevel:['Economics or Business','Maths'],
+  next:[['Surveying or property degree (optional)','Helpful'],['Work for a developer first, then take on projects','Essential']],
+  enterprise:true, ib:'IB Economics or Business Management.'},
+ {id:'chef',name:'Chef and food business owner',group:'enterprise',pay:4,req:[],help:['Design & Technology'],
+  gcse:'No set GCSEs. Practical skills and maths for costing help.',
+  alevel:['A levels not required. T Level in Catering is one route.'],
+  next:[['Hospitality or chef apprenticeship','Essential'],['Build experience, then open your own food business','Alternative']],
+  enterprise:true, ib:'Not usually an IB route.'},
+ {id:'accountant',name:'Accountant',group:'finance',pay:7,req:['Maths','English Language'],help:['Business','Economics'],
+  gcse:'Maths and English are the core.',
+  alevel:['Maths','Economics'],
+  next:[['Accounting or finance degree','Essential'],['Accountancy apprenticeship (ACA or AAT)','Alternative']],
+  ib:'IB Higher Level Maths and Economics.'},
+ {id:'nurse',name:'Nurse',group:'health',pay:6,req:['Combined Science','English Language'],help:['Maths'],
+  gcse:'Sciences and English. Maths is often needed too.',
+  alevel:['Biology','Any second subject'],
+  next:[['Nursing degree (three years)','Essential'],['Nursing degree apprenticeship','Alternative']],
+  ib:'IB Biology, plus another science or social science.'},
+ {id:'teacher',name:'Teacher',group:'education',pay:5,req:['English Language','Maths'],help:[],
+  gcse:'Strong grades in the subject you want to teach.',
+  alevel:['The subject you want to teach'],
+  next:[['Teaching degree, or degree then PGCE','Essential'],['Teacher apprenticeship','Alternative']],
+  ib:'IB subjects matching what you want to teach.'},
+ {id:'police-officer',name:'Police officer',group:'public',pay:5,req:['English Language'],help:['Maths'],
+  gcse:'Usually five GCSEs at grade 4 or above, including English and Maths.',
+  alevel:['Any subjects'],
+  next:[['Police constable degree apprenticeship','Essential'],['Direct entry with GCSEs','Alternative']],
+  ib:'Any IB diploma is accepted for entry.'},
+ {id:'graphic-designer',name:'Graphic designer',group:'creative',pay:4,req:[],help:['Art & Design','English Language'],
+  gcse:'Art & Design, with a strong portfolio.',
+  alevel:['Art & Design','Graphic Design or Photography'],
+  next:[['Graphic design degree','Essential'],['Design apprenticeship','Alternative']],
+  ib:'IB Visual Arts.'},
+ {id:'office-manager',name:'Office manager',group:'admin',pay:4,req:['English Language'],help:['Business','Maths'],
+  gcse:'English and Maths. Business helps.',
+  alevel:['Any subjects'],
+  next:[['Business administration apprenticeship','Essential'],['Work up through admin roles','Alternative']],
+  ib:'Any IB diploma.'}
+];
+
+const SUBJECTS = ['Maths','English Language','English Literature','Combined Science','Computer Science','Business','Economics','History','Design & Technology','Art & Design'];
+
+const QUIZ = [
+ {q:'Which sounds like a good day?',opts:[
+   ['Fixing something with my hands',['trades','technical']],
+   ['Helping someone feel better',['health','education']],
+   ['Building a case or an argument',['legal','public']],
+   ['Working out what a business should do',['finance','enterprise']],
+   ['Making something people will see',['creative']]]},
+ {q:'Where would you rather work?',opts:[
+   ['Outdoors or on site',['trades','enterprise']],
+   ['In a lab or with data',['specialist','technical']],
+   ['With people, in a team',['health','education','public']],
+   ['In an office, organising things',['admin','finance','professional']]]},
+ {q:'Study first, or earn first?',opts:[
+   ['Study first, at university',['professional','legal','specialist']],
+   ['Earn while I learn',['trades','technical','admin']],
+   ['Not sure yet',['enterprise','creative']]]}
+];
+
+const KEY = 'careerPath';
+const getPath = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch(e) { return []; } };
+const setPath = (p) => { try { localStorage.setItem(KEY, JSON.stringify(p)); } catch(e) {} };
+const group = id => GROUPS.find(g => g.id === id);
+const career = id => CAREERS.find(c => c.id === id);
+const payBar = n => `<div class="pay"><i><b style="width:${n*10}%"></b></i><span>Pay ${n}/10</span></div>`;
+
+function nav(route){
+  const items = [['home','Home'],['subjects','Subjects'],['groups','Careers'],['quiz','Quiz'],['path','My Path']];
+  document.getElementById('nav').innerHTML = items.map(([k,l]) =>
+    `<a href="#${k}" ${route===k?'aria-current="page"':''}>${l}</a>`).join('');
+}
+
+function views(){
+  return {
+    home(){ return `
+      <h1>Find your route to work</h1>
+      <p class="lede">Start from the subjects you take, the careers you like, or a few quick questions. Every route runs from GCSEs to A levels, T Levels or apprenticeships, then university or work.</p>
+      <div class="grid">
+        <a class="card" href="#subjects"><b>Start from subjects</b><small>Pick GCSEs and see where they lead</small></a>
+        <a class="card" href="#groups"><b>Start from careers</b><small>Browse ${GROUPS.length} career groups</small></a>
+        <a class="card" href="#quiz"><b>What do you enjoy?</b><small>Three quick questions</small></a>
+      </div>
+      <h2>Career groups</h2>
+      <div class="grid">${GROUPS.map(g=>`<a class="card" href="#group-${g.id}"><b>${g.name}</b><small>${g.blurb}</small></a>`).join('')}</div>`; },
+
+    groups(){ return `<h1>Career groups</h1><p class="lede">Pick a group to see the jobs in it.</p>
+      <div class="grid">${GROUPS.map(g=>`<a class="card" href="#group-${g.id}"><b>${g.name}</b><small>${g.blurb}</small></a>`).join('')}</div>`; },
+
+    group(id){ const g = group(id); if(!g) return views().groups();
+      const list = CAREERS.filter(c=>c.group===id);
+      return `<p><a href="#groups">← All groups</a></p><h1>${g.name}</h1><p class="lede">${g.blurb}</p>
+      <div class="grid">${list.map(c=>`<a class="card" href="#career-${c.id}"><b>${c.name}</b>${payBar(c.pay)}</a>`).join('') || '<p class="muted">No careers added yet.</p>'}</div>`; },
+
+    career(id){ const c = career(id); if(!c) return views().groups(); const g = group(c.group);
+      const inPath = getPath().includes(c.id);
+      const gcseLine = [c.req.length?`Required: ${c.req.join(', ')}`:'No set GCSEs', c.help.length?`Helpful: ${c.help.join(', ')}`:''].filter(Boolean);
+      return `<p><a href="#group-${g.id}">← ${g.name}</a></p>
+      <h1>${c.name}</h1>${payBar(c.pay)}
+      ${c.enterprise?'<p class="tag">Self-employment route</p>':''}
+      <h2>The route</h2>
+      <ol class="route">
+        <li><span class="tag">Stage 1 · GCSE</span><p>${c.gcse}</p>${gcseLine.map(l=>`<p class="muted">${l}</p>`).join('')}</li>
+        <li><span class="tag">Stage 2 · A level, T Level or apprenticeship</span><p>${c.alevel.join(' · ')}</p></li>
+        <li><span class="tag">Stage 3 · Next step</span>${c.next.map(([t,tag])=>`<p>${t} <span class="chip">${tag}</span></p>`).join('')}</li>
+        <li class="job"><span class="tag">Stage 4 · Job</span><p><b>${c.name}</b></p></li>
+      </ol>
+      <div class="box"><span class="tag">IB and Luxembourg</span><p>${c.ib}</p><p class="muted">Check exact subject options with the school, as they vary.</p></div>
+      <p><button class="btn ${inPath?'ghost':''}" data-add="${c.id}">${inPath?'Remove from My Path':'Add to My Path'}</button></p>`; },
+
+    subjects(){ return `<h1>Subject explorer</h1><p class="lede">Tick the GCSEs you take or plan to take.</p>
+      <div class="checks">${SUBJECTS.map(s=>`<label><input type="checkbox" data-sub="${s}"> ${s}</label>`).join('')}</div>
+      <div id="results"></div>`; },
+
+    quiz(){ return `<h1>What do you enjoy?</h1><p class="lede">Three questions, then your best-fit groups.</p><div id="quiz"></div>`; },
+
+    path(){ const p = getPath();
+      return `<h1>My Path</h1><p class="lede">Careers you have saved, and the subjects they share.</p>
+      ${p.length?`<div class="grid">${p.map(id=>{const c=career(id);return `<a class="card" href="#career-${id}"><b>${c.name}</b><small>${group(c.group).name}</small></a>`}).join('')}</div>
+      <h2>Subjects that keep doors open</h2><p>${[...new Set(p.flatMap(id=>career(id).req))].map(s=>`<span class="chip">${s}</span>`).join('') || 'None yet'}</p>`
+      :'<p class="muted">Nothing saved yet. Open a career and press Add to My Path.</p>'}`; }
+  };
+}
+
+function subjectResults(){
+  const ticked = [...document.querySelectorAll('[data-sub]:checked')].map(i=>i.dataset.sub);
+  const open = CAREERS.filter(c=>c.req.every(s=>ticked.includes(s)));
+  const near = CAREERS.filter(c=>!open.includes(c) && c.req.filter(s=>!ticked.includes(s)).length===1);
+  const card = c => `<a class="card" href="#career-${c.id}"><b>${c.name}</b><small>${group(c.group).name}</small>${payBar(c.pay)}</a>`;
+  document.getElementById('results').innerHTML = `
+    <h2>Open to you (${open.length})</h2>
+    <div class="grid">${open.map(card).join('') || '<p class="muted">Tick some subjects to see matches.</p>'}</div>
+    ${near.length?`<h2>One subject away</h2><div class="grid">${near.map(c=>`${card(c)}<small class="muted"></small>`).join('')}</div>`:''}`;
+}
+
+let answers = [];
+function quizView(){
+  const el = document.getElementById('quiz');
+  if(answers.length < QUIZ.length){
+    const i = answers.length, q = QUIZ[i];
+    el.innerHTML = `<p class="tag">Question ${i+1} of ${QUIZ.length}</p><h2>${q.q}</h2>
+      <div class="opts">${q.opts.map((o,k)=>`<button data-ans="${k}">${o[0]}</button>`).join('')}</div>`;
+    return;
+  }
+  const score = {};
+  answers.forEach((k,i)=> QUIZ[i].opts[k][1].forEach(g => score[g]=(score[g]||0)+1));
+  const top = Object.entries(score).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  el.innerHTML = `<h2>Your best fits</h2>
+    <div class="grid">${top.map(([g])=>`<a class="card" href="#group-${g}"><b>${group(g).name}</b><small>${group(g).blurb}</small></a>`).join('') || '<p class="muted">Try again.</p>'}</div>
+    <p style="margin-top:14px"><button class="btn ghost" id="again">Start again</button></p>`;
+}
+
+function render(){
+  const [key, arg] = (location.hash.slice(1) || 'home').split(/-(.+)/).slice(0,2);
+  const route = key === 'group' || key === 'career' ? key : key;
+  const V = views();
+  let html;
+  if(key==='group') html = V.group(arg);
+  else if(key==='career') html = V.career(arg);
+  else html = (V[key]||V.home)();
+  nav(key==='group'||key==='career' ? 'groups' : key);
+  document.getElementById('app').innerHTML = html;
+  if(key==='subjects') subjectResults();
+  if(key==='quiz'){ answers=[]; quizView(); }
+}
+
+document.addEventListener('change', e => { if(e.target.dataset.sub) subjectResults(); });
+document.addEventListener('click', e => {
+  const ans = e.target.closest('[data-ans]');
+  if(ans){ answers.push(Number(ans.dataset.ans)); quizView(); return; }
+  if(e.target.id==='again'){ answers=[]; quizView(); return; }
+  const add = e.target.closest('[data-add]');
+  if(add){
+    const id = add.dataset.add; let p = getPath();
+    p = p.includes(id) ? p.filter(x=>x!==id) : [...p, id];
+    setPath(p); render();
+  }
+});
+window.addEventListener('hashchange', render);
+render();
+</script>
